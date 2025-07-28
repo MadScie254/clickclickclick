@@ -137,4 +137,3 @@ Thumbs.db
 
 # Sentry environment files
 .sentrycli/ # Sentry CLI auth tokens
-.click3/
