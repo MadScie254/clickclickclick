@@ -27,28 +27,6 @@ class ChatGPTPlanner(Planner):
         self.chat_history = [{"role": "system", "content": system_instruction}]
 
     def build_prompt(self, query_text=None, base64_image=None):
-        # Handle case when base64_image is None or empty
-        if not base64_image:
-            if query_text is None:
-                return [
-                    {
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": "No screenshot available - device may not be connected"},
-                        ],
-                    }
-                ]
-            else:
-                return [
-                    {
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": query_text},
-                        ],
-                    }
-                ]
-        
-        # Normal case with valid screenshot
         if query_text is None:
             return [
                 {
@@ -57,7 +35,7 @@ class ChatGPTPlanner(Planner):
                         {
                             "type": "image_url",
                             "image_url": {
-                                "url": f"data:image/png;base64,{base64_image}",
+                                "url": f"data:image/jpeg;base64,{base64_image}",
                                 "detail": "low",
                             },
                         }
@@ -73,7 +51,7 @@ class ChatGPTPlanner(Planner):
                         {
                             "type": "image_url",
                             "image_url": {
-                                "url": f"data:image/png;base64,{base64_image}",
+                                "url": f"data:image/jpeg;base64,{base64_image}",
                                 "detail": "low",
                             },
                         },
@@ -120,7 +98,8 @@ class ChatGPTPlanner(Planner):
                 }
                 for fn in self.functions
             ],
-            tool_choice="required"
+            tool_choice="required",
+            parallel_tool_calls=False,
         )
         print(completion)
         response_message = completion.choices[0].message

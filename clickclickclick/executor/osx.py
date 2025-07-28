@@ -1,17 +1,13 @@
 from . import Executor
+import pyautogui
 from typing import List, Union
 import logging
 import io
 import base64
 from PIL import Image
+import applescript
 from tempfile import NamedTemporaryFile
 from . import logger
-
-try:
-    import pyautogui
-    import applescript
-except Exception as e:
-    print(f"warn: import error in osx.py {e}")
 
 
 class MacExecutor(Executor):
@@ -82,9 +78,6 @@ class MacExecutor(Executor):
         except Exception as e:
             logger.exception("Error in click_at_a_point")
             return False
-
-    def long_press_at_a_point(self, x: int, y: int, observation: str, duration: int = 1000):
-        raise NotImplementedError("Long press is not implemented on Mac")
 
     def swipe_left(self, observation: str) -> bool:
         raise NotImplementedError("Swipe left is not implemented on Mac")

@@ -8,8 +8,6 @@ from PIL import Image
 from tempfile import NamedTemporaryFile
 import shlex
 from . import logger
-from ..config.yaml_loader import load_yaml
-import os
 
 
 def run_adb_command(command: List[str], text_mode: bool = True) -> CompletedProcess:
@@ -35,51 +33,15 @@ def sanitize_for_adb(text: str) -> str:
 
 
 class AndroidExecutor(Executor):
-    # Default configuration constants
-    DEFAULT_SCREEN_CENTER_X = 500
-    DEFAULT_SCREEN_CENTER_Y = 1000
-    DEFAULT_SCROLL_DISTANCE = 1000
-    DEFAULT_SWIPE_DISTANCE = 600
-    DEFAULT_LONG_PRESS_DURATION = 1000
-
     def __init__(self):
         super().__init__()
         self.screenshot_as_base64 = False
         self.screenshot_as_tempfile = False
-        self._load_config()
 
-    def _load_config(self):
-        """Load executor-specific configuration from models.yaml"""
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "..", "config", "models.yaml")
-            config = load_yaml(config_path)
-            android_config = config.get("executor", {}).get("android", {})
-
-            self.screen_center_x = android_config.get(
-                "screen_center_x", self.DEFAULT_SCREEN_CENTER_X
-            )
-            self.screen_center_y = android_config.get(
-                "screen_center_y", self.DEFAULT_SCREEN_CENTER_Y
-            )
-            self.scroll_distance = android_config.get(
-                "scroll_distance", self.DEFAULT_SCROLL_DISTANCE
-            )
-            self.swipe_distance = android_config.get("swipe_distance", self.DEFAULT_SWIPE_DISTANCE)
-            self.long_press_duration = android_config.get(
-                "long_press_duration", self.DEFAULT_LONG_PRESS_DURATION
-            )
-        except Exception as e:
-            logger.warning(f"Could not load configuration, using defaults: {e}")
-            self.screen_center_x = self.DEFAULT_SCREEN_CENTER_X
-            self.screen_center_y = self.DEFAULT_SCREEN_CENTER_Y
-            self.scroll_distance = self.DEFAULT_SCROLL_DISTANCE
-            self.swipe_distance = self.DEFAULT_SWIPE_DISTANCE
-            self.long_press_duration = self.DEFAULT_LONG_PRESS_DURATION
-
-    def click_mouse(self, observation: str):
+    def click_mouse(observation: str):
         raise NotImplementedError("click mouse is not available in android")
 
-    def double_click_mouse(self, observation: str):
+    def double_click_mouse(observation: str):
         raise NotImplementedError("double click mouse is not available in android")
 
     def move_mouse(self, x: int, y: int, observation: str) -> bool:
@@ -124,34 +86,10 @@ class AndroidExecutor(Executor):
             # Perform swipe to simulate scroll
             if clicks > 0:
                 # Scroll up
-                start_y = self.screen_center_y + self.scroll_distance // 2
-                end_y = self.screen_center_y - self.scroll_distance // 2
-                run_adb_command(
-                    [
-                        "shell",
-                        "input",
-                        "swipe",
-                        str(self.screen_center_x),
-                        str(start_y),
-                        str(self.screen_center_x),
-                        str(end_y),
-                    ]
-                )
+                run_adb_command(["shell", "input", "swipe", "500", "1500", "500", "500"])
             else:
                 # Scroll down
-                start_y = self.screen_center_y - self.scroll_distance // 2
-                end_y = self.screen_center_y + self.scroll_distance // 2
-                run_adb_command(
-                    [
-                        "shell",
-                        "input",
-                        "swipe",
-                        str(self.screen_center_x),
-                        str(start_y),
-                        str(self.screen_center_x),
-                        str(end_y),
-                    ]
-                )
+                run_adb_command(["shell", "input", "swipe", "500", "500", "500", "1500"])
             return True
         except Exception as e:
             logger.exception("Error in scroll")
@@ -160,19 +98,7 @@ class AndroidExecutor(Executor):
     def swipe_left(self, observation: str) -> bool:
         try:
             logger.debug("swipe left")
-            start_x = self.screen_center_x + self.swipe_distance // 2
-            end_x = self.screen_center_x - self.swipe_distance // 2
-            run_adb_command(
-                [
-                    "shell",
-                    "input",
-                    "swipe",
-                    str(start_x),
-                    str(self.screen_center_y),
-                    str(end_x),
-                    str(self.screen_center_y),
-                ]
-            )
+            run_adb_command(["shell", "input", "swipe", "700", "1000", "100", "1000"])
             return True
         except Exception as e:
             logger.exception("Error in swipe_left")
@@ -181,19 +107,7 @@ class AndroidExecutor(Executor):
     def swipe_right(self, observation: str) -> bool:
         try:
             logger.debug("swipe right")
-            start_x = self.screen_center_x - self.swipe_distance // 2
-            end_x = self.screen_center_x + self.swipe_distance // 2
-            run_adb_command(
-                [
-                    "shell",
-                    "input",
-                    "swipe",
-                    str(start_x),
-                    str(self.screen_center_y),
-                    str(end_x),
-                    str(self.screen_center_y),
-                ]
-            )
+            run_adb_command(["shell", "input", "swipe", "100", "1000", "700", "1000"])
             return True
         except Exception as e:
             logger.exception("Error in swipe_right")
@@ -220,19 +134,7 @@ class AndroidExecutor(Executor):
     def swipe_up(self, observation: str) -> bool:
         try:
             logger.debug("swipe up")
-            start_y = self.screen_center_y + self.scroll_distance // 2
-            end_y = self.screen_center_y - self.scroll_distance // 2
-            run_adb_command(
-                [
-                    "shell",
-                    "input",
-                    "swipe",
-                    str(self.screen_center_x),
-                    str(start_y),
-                    str(self.screen_center_x),
-                    str(end_y),
-                ]
-            )
+            run_adb_command(["shell", "input", "swipe", "500", "1500", "500", "500"])
             return True
         except Exception as e:
             logger.exception("Error in swipe_up")
@@ -241,19 +143,7 @@ class AndroidExecutor(Executor):
     def swipe_down(self, observation: str) -> bool:
         try:
             logger.debug("swipe down")
-            start_y = self.screen_center_y - self.scroll_distance // 2
-            end_y = self.screen_center_y + self.scroll_distance // 2
-            run_adb_command(
-                [
-                    "shell",
-                    "input",
-                    "swipe",
-                    str(self.screen_center_x),
-                    str(start_y),
-                    str(self.screen_center_x),
-                    str(end_y),
-                ]
-            )
+            run_adb_command(["shell", "input", "swipe", "500", "500", "500", "1500"])
             return True
         except Exception as e:
             logger.exception("Error in swipe_down")
@@ -284,19 +174,6 @@ class AndroidExecutor(Executor):
             return True
         except Exception as e:
             logger.exception("Error in click_at_a_point")
-            return False
-
-    def long_press_at_a_point(self, x: int, y: int, observation: str, duration: int = None) -> bool:
-        try:
-            if duration is None:
-                duration = self.long_press_duration
-            logger.debug(f"Long press at a point x y {x} {y} for duration {duration}")
-            run_adb_command(
-                ["shell", "input", "swipe", str(x), str(y), str(x), str(y), str(duration)]
-            )
-            return True
-        except Exception as e:
-            logger.exception("Error in long_press_at_a_point")
             return False
 
     def screenshot(

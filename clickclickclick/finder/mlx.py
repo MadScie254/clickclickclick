@@ -1,11 +1,8 @@
 from clickclickclick.config import BaseConfig
 from . import BaseFinder, logger
-try:
-    from mlx_vlm import load, generate
-    from mlx_vlm.prompt_utils import apply_chat_template
-    from mlx_vlm.utils import load_config
-except Exception as e:
-    print(f"warn: mlx-vlm import issue {e}")
+from mlx_vlm import load, generate
+from mlx_vlm.prompt_utils import apply_chat_template
+from mlx_vlm.utils import load_config
 from tempfile import NamedTemporaryFile
 import re
 import json

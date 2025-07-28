@@ -2,10 +2,11 @@ requests
 pytest
 pyautogui
 fastapi
+futures
 pillow
 google-generativeai
 py-applescript
-openai
+openai==1.55.0
 ollama
 google.ai.generativelanguage
 click
@@ -16,5 +17,4 @@ pre-commit
 black
 mlx==0.21.1
 mlx-vlm==0.1.4
-gradio
-anthropic
+
